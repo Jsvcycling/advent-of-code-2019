@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 fn part1(lines: &Vec<String>) -> i32 {
-    let mut data: HashMap<(i32, i32), i32> = HashMap::new();
+    let mut data: HashMap<(i32, i32), [bool; 2]> = HashMap::new();
 
     for (line_idx, line) in lines.iter().enumerate() {
         let mut endpoints: Vec<(i32, i32)> = Vec::new();
@@ -13,19 +13,18 @@ fn part1(lines: &Vec<String>) -> i32 {
 
         for step in steps {
             let (dir, amt_str) = step.split_at(1);
-            let amt = amt_str.parse::<i32>().unwrap();
+            let amt: i32 = amt_str.parse().unwrap();
 
             let last = endpoints.last().unwrap().clone();
 
-            // Something is likely wrong in here...
             match dir {
                 "U" => {
                     let start = last.1 + 1;
                     let end = last.1 + amt;
 
                     for idx in start..=end {
-                        let val = data.entry((last.0, idx)).or_insert(0);
-                        *val += 1;
+                        let val = data.entry((last.0, idx)).or_insert([false; 2]);
+                        val[line_idx] = true;
                     }
 
                     endpoints.push((last.0, end));
@@ -35,8 +34,8 @@ fn part1(lines: &Vec<String>) -> i32 {
                     let end = last.1 - 1;
 
                     for idx in start..=end {
-                        let val = data.entry((last.0, idx)).or_insert(0);
-                        *val += 1;
+                        let val = data.entry((last.0, idx)).or_insert([false; 2]);
+                        val[line_idx] = true;
                     }
 
                     endpoints.push((last.0, start));
@@ -46,8 +45,8 @@ fn part1(lines: &Vec<String>) -> i32 {
                     let end = last.0 - 1;
 
                     for idx in start..=end {
-                        let val = data.entry((idx, last.1)).or_insert(0);
-                        *val += 1;
+                        let val = data.entry((idx, last.1)).or_insert([false; 2]);
+                        val[line_idx] = true;
                     }
 
                     endpoints.push((start, last.1));
@@ -57,19 +56,19 @@ fn part1(lines: &Vec<String>) -> i32 {
                     let end = last.0 + amt;
 
                     for idx in start..=end {
-                        let val = data.entry((idx, last.1)).or_insert(0);
-                        *val += 1;
+                        let val = data.entry((idx, last.1)).or_insert([false; 2]);
+                        val[line_idx] = true;
                     }
 
                     endpoints.push((end, last.1));
-                }
+                },
                 _ => panic!(),
             };
         }
     }
 
     let mut dists = data.iter()
-        .filter(|(k, v)| **v > 1)
+        .filter(|(_, v)| v[0] && v[1])
         .map(|(k, _)| k.0.abs() + k.1.abs())
         .collect::<Vec<i32>>();
 
