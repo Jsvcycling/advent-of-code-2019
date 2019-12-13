@@ -12,15 +12,16 @@ fn part1(lines: &Vec<String>) -> i32 {
         let steps: Vec<String> = line.split(",").map(|v| String::from(v.trim())).collect();
 
         for step in steps {
-            let (dir, amt) = step.split_at(1);
+            let (dir, amt_str) = step.split_at(1);
+            let amt = amt_str.parse::<i32>().unwrap();
 
             let last = endpoints.last().unwrap().clone();
 
             // Something is likely wrong in here...
             match dir {
                 "U" => {
-                    let start = last.1;
-                    let end = start + amt.parse::<i32>().unwrap();
+                    let start = last.1 + 1;
+                    let end = start + amt;
 
                     for idx in start..end {
                         let val = data.entry((last.0, idx)).or_insert(0);
@@ -28,34 +29,36 @@ fn part1(lines: &Vec<String>) -> i32 {
                     }
 
                     endpoints.push((last.0, end));
-                }
+                },
                 "D" => {
-                    let end = last.1;
-                    let start = end - amt.parse::<i32>().unwrap();
+                    let start = last.1 - amt - 1;
+                    let end = start + amt;
 
                     for idx in start..end {
                         let val = data.entry((last.0, idx)).or_insert(0);
                         *val += 1;
                     }
 
-                    endpoints.push((last.0, end));
-                }
+                    endpoints.push((last.0, start));
+                },
                 "L" => {
-                    let end = last.0;
-                    let start = end - amt.parse::<i32>().unwrap();
+                    let start = last.0 - amt - 1;
+                    let end = start + amt;
+
+                    println!("start = {}, end = {}", start, end);
 
                     for idx in start..end {
                         let val = data.entry((idx, last.1)).or_insert(0);
                         *val += 1;
                     }
 
-                    endpoints.push((end, last.1));
-                }
+                    endpoints.push((start, last.1));
+                },
                 "R" => {
-                    let start = last.0;
-                    let end = start + amt.parse::<i32>().unwrap();
+                    let start = last.0 + 1;
+                    let end = start + amt;
 
-                    for idx in start..end {
+                    for idx in start..=end {
                         let val = data.entry((idx, last.1)).or_insert(0);
                         *val += 1;
                     }
@@ -65,6 +68,8 @@ fn part1(lines: &Vec<String>) -> i32 {
                 _ => panic!(),
             };
         }
+
+        println!("{:?}", endpoints);
     }
 
     data.iter()
