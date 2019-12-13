@@ -21,9 +21,9 @@ fn part1(lines: &Vec<String>) -> i32 {
             match dir {
                 "U" => {
                     let start = last.1 + 1;
-                    let end = start + amt;
+                    let end = last.1 + amt;
 
-                    for idx in start..end {
+                    for idx in start..=end {
                         let val = data.entry((last.0, idx)).or_insert(0);
                         *val += 1;
                     }
@@ -31,10 +31,10 @@ fn part1(lines: &Vec<String>) -> i32 {
                     endpoints.push((last.0, end));
                 },
                 "D" => {
-                    let start = last.1 - amt - 1;
-                    let end = start + amt;
+                    let start = last.1 - amt;
+                    let end = last.1 - 1;
 
-                    for idx in start..end {
+                    for idx in start..=end {
                         let val = data.entry((last.0, idx)).or_insert(0);
                         *val += 1;
                     }
@@ -42,12 +42,10 @@ fn part1(lines: &Vec<String>) -> i32 {
                     endpoints.push((last.0, start));
                 },
                 "L" => {
-                    let start = last.0 - amt - 1;
-                    let end = start + amt;
+                    let start = last.0 - amt;
+                    let end = last.0 - 1;
 
-                    println!("start = {}, end = {}", start, end);
-
-                    for idx in start..end {
+                    for idx in start..=end {
                         let val = data.entry((idx, last.1)).or_insert(0);
                         *val += 1;
                     }
@@ -56,7 +54,7 @@ fn part1(lines: &Vec<String>) -> i32 {
                 },
                 "R" => {
                     let start = last.0 + 1;
-                    let end = start + amt;
+                    let end = last.0 + amt;
 
                     for idx in start..=end {
                         let val = data.entry((idx, last.1)).or_insert(0);
@@ -68,17 +66,18 @@ fn part1(lines: &Vec<String>) -> i32 {
                 _ => panic!(),
             };
         }
-
-        println!("{:?}", endpoints);
     }
 
-    data.iter()
+    let mut dists = data.iter()
         .filter(|(k, v)| **v > 1)
         .map(|(k, _)| k.0.abs() + k.1.abs())
-        .filter(|v| *v > 0)
-        .min()
-        .unwrap()
-        .clone()
+        .collect::<Vec<i32>>();
+
+    dists.sort();
+
+    println!("{:?}", dists);
+
+    dists.first().unwrap().clone()
 }
 
 fn part2(lines: &Vec<String>) -> i32 {
